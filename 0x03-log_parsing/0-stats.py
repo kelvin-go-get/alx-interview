@@ -26,15 +26,29 @@ if __name__ == "__main__":
         for line in sys.stdin:
             try:
                 parts = line.split()
-                status_code = parts[-2]
-                file_size = int(parts[-1])
                 
+                if len(parts) < 7:
+                    continue  # Skip lines that don't have enough parts
+                
+                # Extract status code and file size
+                status_code = parts[-2]
+                file_size = parts[-1]
+
+                # Ensure file_size is a valid integer
+                try:
+                    file_size = int(file_size)
+                except ValueError:
+                    continue
+
+                # Update file size total
+                file_size_total += file_size
+
+                # Update status code count
                 if status_code in codes_count:
                     codes_count[status_code] += 1
-                
-                file_size_total += file_size
+
                 count += 1
-                
+
                 if count == 10:
                     print_metrics(file_size_total, codes_count)
                     count = 0

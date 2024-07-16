@@ -1,4 +1,4 @@
-!/usr/bin/python3
+#!/usr/bin/python3
 """
 Log parsing
 """
@@ -16,29 +16,31 @@ def print_metrics(file_size, status_codes):
             print("{}: {}".format(code, status_codes[code]))
 
 
-codes_count = {'200': 0, '301': 0, '400': 0, '401': 0,
-               '403': 0, '404': 0, '405': 0, '500': 0}
-file_size_total = 0
-count = 0
-
 if __name__ == "__main__":
+    codes_count = {'200': 0, '301': 0, '400': 0, '401': 0,
+                   '403': 0, '404': 0, '405': 0, '500': 0}
+    file_size_total = 0
+    count = 0
+
     try:
         for line in sys.stdin:
             try:
-                status_code = line.split()[-2]
-                if status_code in codes_count.keys():
+                parts = line.split()
+                status_code = parts[-2]
+                file_size = int(parts[-1])
+                
+                if status_code in codes_count:
                     codes_count[status_code] += 1
-                # Grab file size
-                file_size = int(line.split()[-1])
+                
                 file_size_total += file_size
+                count += 1
+                
+                if count == 10:
+                    print_metrics(file_size_total, codes_count)
+                    count = 0
             except Exception:
-                pass
-            # print metrics if 10 lines have been read
-            count += 1
-            if count == 10:
-                print_metrics(file_size_total, codes_count)
-                count = 0
+                continue
     except KeyboardInterrupt:
         print_metrics(file_size_total, codes_count)
         raise
-   print_metrics(file_size_total, codes_count)
+    print_metrics(file_size_total, codes_count)
